@@ -3,5 +3,5 @@ project(eventServer)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES source/main.cpp)
+set(SOURCE_FILES source/main.cc)
 add_executable(eventServer ${SOURCE_FILES})
