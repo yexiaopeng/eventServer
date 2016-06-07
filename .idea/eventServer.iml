@@ -3,9 +3,11 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/process/SONEEventProcess.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/process/SONEEventProcess.cc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/source/main.cc" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/source/protocol/SONENetProtocol.cc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/source/protocol/SONENetProtocol.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/protocol/SONENetProtocol.cc" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
