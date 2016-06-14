@@ -6,8 +6,11 @@
       <sourceFolder url="file://$MODULE_DIR$/source/process/SONEEventProcess.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/source/process/SONEEventProcess.cc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/source/main.cc" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/source/protocol/SONENetProtocol.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/source/protocol/SONENetProtocol.cc" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/protocol/ntprotocol.cc" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/protocol/ntprotocol.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/c_type/c_type.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/msgdecoder/ntmsgdecoder.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/source/msgdecoder/ntmsgdecoder.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">

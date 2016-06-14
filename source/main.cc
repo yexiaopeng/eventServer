@@ -11,6 +11,3 @@ int main(){
 }
 
 
-void add(){
-
-}

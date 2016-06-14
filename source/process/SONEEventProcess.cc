@@ -3,8 +3,11 @@
 //
 
 #include "SONEEventProcess.h"
+#include "../protocol/ntprotocol.h"
+#include "../msgdecoder/ntmsgdecoder.h"
 
-
+static void* pServerReviceCache = 0;
+static uint16_t pServerReviceCachesize = 0;
 int soneEventServer_init(int listenPort, int listenBacklog){
     int ret;
     evutil_socket_t listener;
@@ -69,7 +72,34 @@ void soneEventServer_read_cb(struct bufferevent *bev, void *arg){
 
     while (n = bufferevent_read(bev, line, MAX_LINE), n > 0) {
         line[n] = '\0';
-        printf("fd=%u, read line: %s\n", fd, line);
+        printf("fd=%u, read line: %s n = %d \n", fd, line,n);
+
+        char *pdata = (char *)malloc(n);
+        memcpy(pdata,line,n);
+
+
+
+        NTNetProtocolPack* protocol;
+        NTDeviceMark *deviceMark = (NTDeviceMark*)malloc(sizeof(NTDeviceMark));
+        deviceMark->deviceID = 1234;
+        deviceMark->deviceType = 32;
+        char  msecur[32] ={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
+
+        while (NTMsgDecoder(line,n, &protocol,deviceMark,msecur,&pServerReviceCache, &pServerReviceCachesize) == eOK ){
+            if(protocol){
+                switch (protocol->protocolType){
+                    case 2:{
+                        printf("\r\n 是是是");
+                    }
+                        break;
+
+                    default:{
+                        printf("\r\n 其他");
+                        break;
+                    }
+                }
+            }
+        }
 
         bufferevent_write(bev, line, n);
     }
