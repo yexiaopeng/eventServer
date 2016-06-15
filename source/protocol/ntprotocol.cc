@@ -3,11 +3,28 @@
 //
 
 #include "ntprotocol.h"
+#include "../msgdecoder/ntmsgdecoder.h"
 
 const char pNetHander[] = { "$SONE" };
 
 uint NetHanderCheck(char *pdata, int size){
-    return 0;
+    if (size < sizeof(NTNetProtocolPack)) {
+        return NT_CHECK_RETURN_MORE_DATA; //数据长度不足
+    }
+    char* CurrentData = (char*) malloc(sizeof(NTNetProtocolPack));
+    memcpy(CurrentData, (const void*) pdata, sizeof(NTNetProtocolPack));
+    NTNetProtocolPack * rxProtocolData = (NTNetProtocolPack*) CurrentData;
+
+    WORD handerCrc16 = NetCountCRC_16((char *) &rxProtocolData->protocolType,
+                                      sizeof(NTNetProtocolPack) - sizeof(rxProtocolData->packHander) - sizeof(rxProtocolData->data) - sizeof(rxProtocolData->handerCRC));
+
+    if (handerCrc16 == rxProtocolData->handerCRC) {
+        free(CurrentData);
+        return NT_CHECK_RETURN_SUCCESS; //校验通过
+    } else {
+        free(CurrentData);
+        return NT_CHECK_RETURN_ERROR; //校验失败
+    }
 }
 
 
@@ -15,7 +32,59 @@ uint NetHanderCheck(char *pdata, int size){
 
 
 uint NetAnalysisCheck(char *pdata, int size, const char*SecurityData){
-    return 0;
+    char* CurrentData = (char*) malloc(size);
+    memcpy(CurrentData, (const void*) pdata, size);
+    NTNetProtocolPack * rxProtocolData = (NTNetProtocolPack*) CurrentData;
+
+    WORD handerCrc16 = NetCountCRC_16((char *) &rxProtocolData->protocolType,
+                                      sizeof(NTNetProtocolPack) - sizeof(rxProtocolData->packHander) - sizeof(rxProtocolData->data) - sizeof(rxProtocolData->handerCRC));
+    if (handerCrc16 != rxProtocolData->handerCRC) {
+        free(CurrentData);
+        return NT_CHECK_RETURN_ERROR;
+    }
+    UINT16 CRC16Data;
+    unsigned char KeysA, KeysB;
+    KeysA = rxProtocolData->packID & 0x000F; //低四位
+    KeysB = ((rxProtocolData->packID >> 4) & 0x000F) + 16; //第五位-第八位
+    rxProtocolData->packHander[0] = SecurityData[KeysA];
+    rxProtocolData->packHander[1] = SecurityData[KeysB];
+    KeysA = SecurityData[KeysA] & 0x0F;
+    KeysB = (SecurityData[KeysB] & 0x0F) + 16;
+    rxProtocolData->packHander[2] = SecurityData[KeysA];
+    rxProtocolData->packHander[3] = SecurityData[KeysB];
+
+    int i = 0;
+
+    if (rxProtocolData->dataLength > 0) {
+        BYTE* dataptr = (BYTE*) &rxProtocolData->data;
+        uint32_t* intHander = (uint32_t*) &rxProtocolData->packHander;
+        UINT16 sindex = *intHander % 32;
+        for (i = 0; i < rxProtocolData->dataLength; i++) {
+            dataptr[i] = dataptr[i] ^ SecurityData[sindex];
+            sindex++;
+            if (sindex >= 32)
+                sindex = 0;
+        }
+    }
+
+    CRC16Data = NetCountCRC_16(CurrentData, size - sizeof(rxProtocolData->dataLength));
+    // rxProtocolData->crc16 = 0x1402;
+//	delete[] CurrentData;
+
+    BYTE*pbytecrc16 = (BYTE*) &rxProtocolData->data + rxProtocolData->dataLength;
+    WORD pwcrc16; //=(WORD*)pbytecrc16;
+    memcpy(&pwcrc16, pbytecrc16, sizeof(WORD));
+
+    if (CRC16Data == pwcrc16) {
+        //将解密的数据区写入投入的数据区
+        NTNetProtocolPack * outProtocolData = (NTNetProtocolPack*) pdata;
+        memcpy(&outProtocolData->data, &rxProtocolData->data, rxProtocolData->dataLength);
+        free(CurrentData);
+        return NT_CHECK_RETURN_SUCCESS;
+    } else {
+        free(CurrentData);
+        return NT_CHECK_RETURN_ERROR;
+    }
 }
 
 
